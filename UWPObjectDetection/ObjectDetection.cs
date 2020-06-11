@@ -1,14 +1,3 @@
-// The steps implemented in the object detection sample code: 
-// 1. for an image of width and height being (w, h) pixels, resize image to (w', h'), where w/h = w'/h' and w' x h' = 262144
-// 2. resize network input size to (w', h')
-// 3. pass the image to network and do inference
-// (4. if inference speed is too slow for you, try to make w' x h' smaller, which is defined with DEFAULT_INPUT_SIZE (in object_detection.py or ObjectDetection.cs))
-// <copyright file="ObjectDetection.cs" company="Microsoft Corporation">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// </copyright>
-
-/// Script for CustomVision's exported object detection model.
-
 namespace UWPObjectDetection
 {
     using System;

@@ -40,40 +40,44 @@ namespace UWPObjectDetection
             await detection.Init(modelFile);
 
             var images = await Images.PickImages();
-            double step = prBar.Maximum / images.Count();
-            int count = 0;
-
-            VideoFrame videoFrame = null;
-            List<PredictionModel> predictions = null;
-
-            btnRun.IsEnabled = false;
-            prBar.Visibility = Visibility.Visible;
-            prText.Visibility = Visibility.Visible;
-
-            foreach (StorageFile image in images)
+            if(images.Count() > 0)
             {
-                videoFrame = await Images.GetVideoFrame(image);
+                double step = prBar.Maximum / images.Count();
+                int count = 0;
 
-                predictions = (await detection.PredictImageAsync(videoFrame))
-                    .Where(predict => predict.Probability > Constants.TRESHHOLD)
-                    .ToList();
+                VideoFrame videoFrame = null;
+                List<PredictionModel> predictions = null;
 
-                if(predictions.Count > 0)
+                btnRun.IsEnabled = false;
+                prBar.Visibility = Visibility.Visible;
+                prText.Visibility = Visibility.Visible;
+
+                foreach (StorageFile image in images)
                 {
-                    count++;
-                    prBar.Value += step;
-                    Images.SaveImage(new Tuple<StorageFile, IList<PredictionModel>>(image, predictions));
+                    videoFrame = await Images.GetVideoFrame(image);
+
+                    predictions = (await detection.PredictImageAsync(videoFrame))
+                        .Where(predict => predict.Probability > Constants.TRESHHOLD)
+                        .ToList();
+
+                    if (predictions.Count > 0)
+                    {
+                        count++;
+                        prBar.Value += step;
+                        Images.SaveImage(new Tuple<StorageFile, IList<PredictionModel>>(image, predictions));
+                    }
                 }
+
+                prBar.Value = 0;
+                prBar.Visibility = Visibility.Collapsed;
+                prText.Visibility = Visibility.Collapsed;
+                btnRun.IsEnabled = true;
+
+                var dialog = new MessageDialog($"Всего {count} изображений содержит жировую ткань");
+                await dialog.ShowAsync();
+
+                await Launcher.LaunchFolderAsync(KnownFolders.SavedPictures);
             }
-
-            prBar.Visibility = Visibility.Collapsed;
-            prText.Visibility = Visibility.Collapsed;
-            btnRun.IsEnabled = true;
-
-            var dialog = new MessageDialog($"Всего {count} изображений содержит жировую ткань");
-            await dialog.ShowAsync();
-
-            await Launcher.LaunchFolderAsync(KnownFolders.SavedPictures);
         }
     }
 }
